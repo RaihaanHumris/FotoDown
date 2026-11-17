@@ -1,0 +1,23 @@
+{
+  "name": "FotoDown — Kompres Foto",
+  "short_name": "FotoDown",
+  "description": "Kompres ukuran foto langsung di browser lalu simpan ke galeri. Cepat, privat, bisa offline.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0E1116",
+  "theme_color": "#0E1116",
+  "categories": ["photo", "utilities", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Kompres foto", "url": "./?action=pick" }
+  ]
+}

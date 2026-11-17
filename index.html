@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FotoDown — Kompres Foto Jadi Ringan</title>
+<meta name="description" content="Kompres ukuran foto langsung di browser. Cepat, privat, dan bisa dipakai offline." />
+<meta name="theme-color" content="#0E1116" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/>
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#g1)"/>
+      <path d="M14 30l6-7 5 5 4-4 5 6" fill="none" stroke="#0B0D12" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="17" cy="17" r="3" fill="#0B0D12"/>
+      <path d="M30 34h-12" stroke="#0B0D12" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <h1>FotoDown</h1>
+      <p class="tagline">Kompres foto jadi ringan — tanpa upload</p>
+    </div>
+  </div>
+  <button id="installBtn" class="ghost-btn" hidden>
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Pasang app
+  </button>
+</header>
+
+<main>
+  <section id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Pilih atau tarik foto">
+    <input id="fileInput" type="file" accept="image/*" multiple hidden />
+    <div class="dz-inner">
+      <div class="dz-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 16V4m0 0L7 9m5-5l5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <p class="dz-title">Tarik foto ke sini</p>
+      <p class="dz-sub">atau <span class="link">pilih dari perangkat</span> · JPG, PNG, WEBP, HEIC*</p>
+    </div>
+  </section>
+
+  <section class="panel" id="settingsPanel" aria-label="Pengaturan kompresi">
+    <div class="field">
+      <label>Ukuran maksimal</label>
+      <div class="segmented" id="sizeSeg" role="group">
+        <button data-size="0">Asli</button>
+        <button data-size="2560">2560</button>
+        <button data-size="1920" class="active">1920</button>
+        <button data-size="1280">1280</button>
+        <button data-size="800">800</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="quality">Kualitas <span id="qualityVal" class="pill">75%</span></label>
+      <input id="quality" type="range" min="30" max="95" step="5" value="75" />
+      <div class="range-hint"><span>Kecil</span><span>Bagus</span></div>
+    </div>
+
+    <div class="field">
+      <label for="format">Format output</label>
+      <select id="format">
+        <option value="image/jpeg">JPG — paling kecil</option>
+        <option value="image/webp">WEBP — paling kecil + tajam</option>
+        <option value="image/png">PNG — lossless (besar)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="targetKb">Target ukuran (opsional) <span class="pill soft">KB</span></label>
+      <div class="row">
+        <input id="targetKb" type="number" min="20" max="5000" step="10" placeholder="mis. 200" />
+        <span class="muted small">kosongkan = pakai slider kualitas</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="summary" class="summary" hidden>
+    <div class="stat"><span id="statCount">0</span><small>foto</small></div>
+    <div class="stat"><span id="statBefore">0 B</span><small>sebelum</small></div>
+    <div class="stat accent"><span id="statAfter">0 B</span><small>sesudah</small></div>
+    <div class="stat good"><span id="statSaved">0%</span><small>hemat</small></div>
+    <div class="summary-actions">
+      <button id="zipBtn" class="primary-btn">Unduh semua (.zip)</button>
+      <button id="clearBtn" class="ghost-btn">Bersihkan</button>
+    </div>
+  </section>
+
+  <section id="results" class="results" aria-live="polite"></section>
+</main>
+
+<footer>
+  <p>Semua proses berjalan lokal di perangkatmu — foto tidak dikirim ke server mana pun.</p>
+  <p class="muted small">*HEIC didukung kalau browser-nya bisa decode. <span id="swState" class="dot"></span></p>
+</footer>
+
+<template id="cardTpl">
+  <article class="card">
+    <div class="thumb-wrap"><img class="thumb" alt="" loading="lazy" /><span class="badge"></span></div>
+    <div class="card-body">
+      <p class="name"></p>
+      <p class="sizes"><span class="before"></span> <span class="arrow">→</span> <span class="after"></span></p>
+      <div class="bar"><i></i></div>
+      <div class="card-actions">
+        <a class="dl small-btn" download>Unduh</a>
+        <button class="retry small-btn ghost" hidden>Coba lagi</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
