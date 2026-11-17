@@ -1,5 +1,5 @@
 /* FotoDown service worker — offline ready */
-const VERSION = "fotodown-v1";
+const VERSION = "fotodown-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -31,21 +31,16 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
 
-  if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req).catch(() => caches.match("./index.html"))
-    );
-    return;
-  }
-
+  // network-first: selalu ambil versi terbaru, cache jadi cadangan saat offline
   event.respondWith(
-    caches.match(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
+    fetch(req)
+      .then((res) => {
         const copy = res.clone();
         caches.open(VERSION).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => hit);
-    })
+      })
+      .catch(() =>
+        caches.match(req).then((hit) => hit || caches.match("./index.html"))
+      )
   );
 });
